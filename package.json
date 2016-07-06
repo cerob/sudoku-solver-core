@@ -1,0 +1,23 @@
+{
+  "name": "sudoku-solver-core",
+  "version": "0.0.1",
+  "description": "performs sudoku solving operations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/efsantrifuge/sudoku-solver-core.git"
+  },
+  "keywords": [
+    "sudoku",
+    "solve"
+  ],
+  "author": "efsantrifuge",
+  "license": "MIT License",
+  "bugs": {
+    "url": "https://github.com/efsantrifuge/sudoku-solver-core/issues"
+  },
+  "homepage": "https://github.com/efsantrifuge/sudoku-solver-core#readme"
+}
