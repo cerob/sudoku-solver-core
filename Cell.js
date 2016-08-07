@@ -1,11 +1,11 @@
 function Cell(data) {
     this.value = data;
-    this.hasDiscovered = data != null;
+    this.isDiscovered = data != null;
     this.possibilityTable = data != null ? [] : [1, 2, 3, 4, 5, 6, 7, 8, 9];
 }
 
 Cell.prototype.isOK = function () {
-    return this.hasDiscovered;
+    return this.isDiscovered;
 }
 
 Cell.prototype.getValue = function () {
@@ -14,6 +14,8 @@ Cell.prototype.getValue = function () {
 
 Cell.prototype.setValue = function (value) {
     this.value = value;
+    this.possibilityTable = null;
+    this.isDiscovered = true;
 }
 
 Cell.prototype.eliminateNumber = function (num) {
@@ -23,7 +25,7 @@ Cell.prototype.eliminateNumber = function (num) {
     }
 
     if (this.possibilityTable.length == 1) {
-        this.hasDiscovered = true;
+        this.isDiscovered = true;
         this.setValue(this.possibilityTable[0]);
         return true;
     } else {

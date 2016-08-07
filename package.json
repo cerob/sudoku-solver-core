@@ -1,6 +1,6 @@
 {
   "name": "sudoku-solver-core",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "performs sudoku solving operations",
   "main": "index.js",
   "scripts": {
