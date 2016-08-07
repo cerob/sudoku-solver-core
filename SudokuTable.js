@@ -1,18 +1,17 @@
-//var rowSingularity, colSingularity, regionSingularity = [];
-
-var Cell = require("./Cell.js");
-var Region = require("./Region.js");
-
-var table = [],
-    rowSet = [],
-    colSet = [],
-    boxSet = [];
+    var Cell = require("./Cell.js");
+    var Region = require("./Region.js");
 
 function SudokuTable (initialRawData) {
-
+    this.table = [],
+    this.rowSet = [],
+    this.colSet = [],
+    this.boxSet = [];
+    
     this.setupTable(initialRawData);
     this.setupRegionSets();
+    this.setupEliminations();
 
+    this.currentCoordinates = [0, 0];
     //this.solve();
 }
 
@@ -27,65 +26,155 @@ SudokuTable.prototype.setupTable = function (data) {
                 row.push(new Cell(null));
             }
         }
-        table.push(row);
+        this.table.push(row);
     }
 }
-
-/*SudokuTable.prototype.controls = function () {
-    console.log(boxSet[8].index);
-}*/
 
 SudokuTable.prototype.setupRegionSets = function () {
     for (var i=0; i<9; i++) {
-        rowSet.push(new Region("row", i));
-        colSet.push(new Region("col", i));
-        boxSet.push(new Region("box", i));
+        this.rowSet.push(new Region());
+        this.colSet.push(new Region());
+        this.boxSet.push(new Region());
     }
 
     for (var i=0; i<9; i++) {
         for (var j = 0; j < 9; j++) {
-            var cell = this.getCell(i, j);
-            rowSet[i].add(cell);
-            //colSet[j].add(cell);
-            //boxSet[3 * Math.floor(i/3) + Math.floor(j/3)].add(this.getCell(3 * Math.floor(i/3) + Math.floor(j/3), 3 * (i%3) + j%3));
-            
-            /*rowSet[i][j] = cell;
-            colSet[j][i] = cell;
-            boxSet[3 * Math.floor(i/3) + Math.floor(j/3)][3 * (i%3) + j%3] = cell;*/
+            var cell = this.table[i][j];
+            this.rowSet[i].add(cell);
+            this.colSet[j].add(cell);
+            this.boxSet[this.getBoxNumber(i, j)].add(cell);
         }
     }
 }
 
-SudokuTable.prototype.getCell = function (row, col) {
-    return table[row][col];
-}
-
-SudokuTable.prototype.printEXPERIMENTAL = function () {
-    /*//rows
-    var sol = "";
+SudokuTable.prototype.setupEliminations = function () {
     for (var i=0; i<9; i++) {
-        for (var j = 0; j < 9; j++) {
-            var val = rowSet[i].getCell(j).getValue();
-
-            if (val == null) {
-                sol += 0;
-            } else {
-                sol += val;
+        for (var j=0; j<9; j++) {
+            var cell = this.table[i][j];
+            if (cell.isConstant) {
+                var val = cell.value;
+                for (var k=0; k<9; k++) {
+                    if (k != j) {
+                        this.rowSet[i].cells[k].eliminateNumber(val);
+                    }
+                    
+                    if (k != i) {
+                        this.colSet[j].cells[k].eliminateNumber(val);
+                    }
+                    
+                    if (k != (3*(i%3) + (j%3))) {
+                        this.boxSet[this.getBoxNumber(i, j)].cells[k].eliminateNumber(val);
+                    }
+                }
             }
         }
     }
-    return sol;*/
-    for (var i=0; i<9; i++) {
-        var ff = rowSet[i].EXP_print();
-        console.log(ff + "  ---  " + ff.length + "  ---  " + rowSet[i].name + rowSet[i].index);
+}
+
+SudokuTable.prototype.next = function () {
+    var i = this.currentCoordinates[0];
+    var j = this.currentCoordinates[1] + 1;
+    
+    /*if (i == 0 && j == 1 && !this.table[0][0].isConstant) {
+        return this.table[0][0];
+    }*/
+    
+    /*    console.log(i);
+    console.log(j);
+    console.log("VAL " + this.getCell(i, j).value);
+    console.log("CNS " + this.getCell(i, j).isConstant);*/
+    for (; i<9; i++){
+        for (; j<9; j++) {
+            var cell = this.table[i][j];
+            if (!cell.isConstant) {
+    /*                console.log(i);
+                console.log(j);
+                console.log("val " + this.getCell(i, j).value);
+                console.log("cns " + this.getCell(i, j).isConstant);*/
+                this.currentCoordinates[0] = i;
+                this.currentCoordinates[1] = j;
+                return cell;
+            }
+        }
+        j = 0;
     }
+    return null;
+}
+
+SudokuTable.prototype.prev = function () {
+    var i = this.currentCoordinates[0];
+    var j = this.currentCoordinates[1] - 1;
+    
+    for (; i>=0; i--){
+        for (; j>=0; j--) {
+            var cell = this.table[i][j];
+            if (!cell.isConstant) {
+                this.currentCoordinates[0] = i;
+                this.currentCoordinates[1] = j;
+                return cell;
+            }
+        }
+        j = 8;
+    }
+    return null;
+}
+
+SudokuTable.prototype.solve = function () {
+    var c = this.table[0][0].isConstant ? this.next() : this.table[0][0];
+    
+    while (true) {
+        
+        console.log("NOW ON: (" + this.currentCoordinates[0] + ", " + this.currentCoordinates[1] + ")");
+        
+        if (c.hasNextValue()) {
+            var newVal = c.setNextValue();
+            if (this.rowSet[this.currentCoordinates[0]].checkContradiction(c)
+                 && this.colSet[this.currentCoordinates[1]].checkContradiction(c)
+                 && this.boxSet[this.getBoxNumber(this.currentCoordinates[0], this.currentCoordinates[1])].checkContradiction(c)) {
+                     if (this.currentCoordinates[0] == 8 && this.currentCoordinates[1] == 8) {
+                         break;
+                     }
+                     c = this.next();
+                 } else {
+                     
+                 }
+        } else {
+            c.value = null;
+            c = c.prev();
+        }
+    }
+    
+    console.log("FINISH!");
+}
+
+SudokuTable.prototype.getBoxNumber = function (row, col) {
+    return (3 * Math.floor(row/3) + Math.floor(col/3));
+}
+
+SudokuTable.prototype.printEXPERIMENTAL = function () {
+    /*    console.log("rowSet");
+    for (var i=0; i<9; i++) {
+        this.rowSet[i].EXP_print();
+    }
+    console.log("");
+    
+    console.log("colSet");
+    for (var i=0; i<9; i++) {
+        this.colSet[i].EXP_print();
+    }
+    console.log("");
+    
+    console.log("boxSet");
+    for (var i=0; i<9; i++) {
+        this.boxSet[i].EXP_print();
+    }*/
 }
 
 SudokuTable.prototype.printSolution = function () {
     var sol = "";
     for (var i=0; i<9; i++) {
         for (var j = 0; j < 9; j++) {
-            var val = this.getCell(i, j).getValue();
+            var val = this.table[i][j].getValue();
 
             if (val == null) {
                 sol += 0;
@@ -95,124 +184,6 @@ SudokuTable.prototype.printSolution = function () {
         }
     }
     return sol;
-}
-
-SudokuTable.prototype.solve = function () {
-    this.basicElimination();
-}
-
-SudokuTable.prototype.basicElimination = function () {
-    for (var i=0; i<9; i++) {
-        for (var j = 0; j < 9; j++) {
-            if (!this.getCell(i, j).isOK()) {
-                this.check(i, j);
-            }
-        }
-    }
-}
-
-SudokuTable.prototype.scan = function () {
-
-}
-
-
-SudokuTable.prototype.checkRemainder = function (row, col) {
-    rowSingularity[row] -= 1;
-    colSingularity[col] -= 1;
-    regionSingularity[Math.floor(row/3) + Math.floor(col/3)] -= 1;
-
-    if (rowSingularity[row] == 1) {this.solveSingularity(row, col, "row");}
-    if (colSingularity[col] == 1) {this.solveSingularity(row, col, "col");}
-    if (regionSingularity[Math.floor(row/3) + Math.floor(col/3)] == 1) {this.solveSingularity(row, col, "reg");}
-}
-
-SudokuTable.prototype.solveSingularity = function (row, col, direction) {
-    if (direction == "row") {
-        for (var i=0; i<9; i++) {
-
-        }
-    }
-//TODO dont forget to reset singularities
-}
-
-
-SudokuTable.prototype.check = function (row, col) {
-    if (this.checkByCol(row, col)) {
-        if (this.checkByRow(row, col)) {
-            return this.checkByRegion(row, col);
-        }
-        return false;
-    }
-    return false;
-}
-
-
-
-SudokuTable.prototype.checkByRow = function (row, col) {
-    var cell = this.getCell(row, col);
-
-    for (var i=0; i<9; i++) {
-        if (i == col) {continue;}
-
-        var curr = this.getCell(row, i);
-        if (curr>=1 && curr<=9) {
-            cell.eliminateNumber(curr);
-        }
-    }
-    return cell.isOK();
-}
-
-
-SudokuTable.prototype.checkByCol = function (row, col) {
-    var cell = this.getCell(row, col);
-
-    for (var i=0; i<9; i++) {
-        if (i == row) {continue;}
-
-        var curr = this.getCell(i, col);
-        if (curr>=1 && curr<=9) {
-            cell.eliminateNumber(curr);
-        }
-    }
-    return cell.isOK();
-}
-
-SudokuTable.prototype.checkByRegion = function (row, col) {
-    var cell = this.getCell(row, col);
-
-    var rowset, colset;
-
-    if (col >= 0 && col <=2) {
-        colset = [0, 1, 2];
-    } else if (col >= 3 && col <=5) {
-        colset = [3, 4, 5];
-    } else if (col >= 6 && col <=8) {
-        colset = [6, 7, 8];
-    }
-
-    if (row >= 0 && row <=2) {
-        rowset = [0, 1, 2];
-    } else if (row >= 3 && row <=5) {
-        rowset = [3, 4, 5];
-    } else if (row >= 6 && row <=8) {
-        rowset = [6, 7, 8];
-    }
-
-    var rowsetlen = rowset.length,
-        colsetlen = colset.length;
-    for (var i=0; i<rowsetlen; i++) {
-        for (var j=0; j<colsetlen; j++) {
-            if (rowset[i] == row && colset[j] == col) {continue;}
-
-            var curr = this.getCell(rowset[i], colset[j]);
-
-            if (curr>=1 && curr<=9) {
-                cell.eliminateNumber(curr);
-            }
-        }
-    }
-
-    return cell.isOK();
 }
 
 
