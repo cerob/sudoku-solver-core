@@ -12,10 +12,12 @@ Region.prototype.checkContradiction = function (cell) {
     var foundOriginal = false;
     
     for (var i=0; i<9; i++) {
-        if (cells[i].value = val && foundOriginal){
+        if (this.cells[i].value == val && foundOriginal){
+            //console.log("1 foundOrig: " + foundOriginal + ", i: " + i);
             return false;
         }
-        if (cells[i].value = val && !foundOriginal){
+        if (this.cells[i].value == val && !foundOriginal){
+            //console.log("2 foundOrig: " + foundOriginal + ", i: " + i);
             foundOriginal = true;
         }
     }

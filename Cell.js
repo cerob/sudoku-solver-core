@@ -30,7 +30,10 @@ Cell.prototype.setNextValue = function () {
 }
 
 Cell.prototype.eliminateNumber = function (num) {
+    //console.log(this.possibilityTable.length);
+    //console.log("num: " + num);
     var index = this.possibilityTable.indexOf(num);
+    //console.log("index: " + index);
     if (index != -1) {
         this.possibilityTable.splice(index, 1);
     }

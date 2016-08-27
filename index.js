@@ -17,11 +17,12 @@ var SudokuTable = require("./SudokuTable.js");
 var start = new Date().getTime();
 
 var s = new SudokuTable(input);
-s.solve();
 
 var end = new Date().getTime();
 var time = end - start;
-console.log('Execution time: ' + time);
+
+s.printBoard();
+console.log('Execution time: ' + time + " ms");
 //var sol = s.printEXPERIMENTAL();
 
 //console.log("INP = " + input);
