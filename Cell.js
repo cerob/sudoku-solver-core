@@ -4,7 +4,7 @@ function Cell(data) {
     
     if (!this.isConstant) {
         this.possibilityTable = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        this.isFinished = false; //TODO pls check from eliminating
+        this.isFinished = false;
     }
 }
 
@@ -30,10 +30,8 @@ Cell.prototype.setNextValue = function () {
 }
 
 Cell.prototype.eliminateNumber = function (num) {
-    //console.log(this.possibilityTable.length);
-    //console.log("num: " + num);
     var index = this.possibilityTable.indexOf(num);
-    //console.log("index: " + index);
+    
     if (index != -1) {
         this.possibilityTable.splice(index, 1);
     }

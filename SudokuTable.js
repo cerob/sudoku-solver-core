@@ -8,18 +8,12 @@ function SudokuTable (initialRawData) {
     this.boxSet = [];
     
     this.setupTable(initialRawData);
-    //console.log("1 OK");
     this.setupRegionSets();
-    //console.log("2 OK");
-    //this.analyzeCellsWithTable();
     this.setupEliminations();
-    //console.log("3 OK");
-
+    
     this.currentCoordinates = [0, 0];
     this.lastCoordinates = [8, 8];
     this.pickLastCell();
-    
-    //this.printBoard();
     
     this.solve();
 }
@@ -62,26 +56,21 @@ SudokuTable.prototype.setupEliminations = function () {
             var cell = this.table[i][j];
             if (cell.isConstant) {
                 var val = cell.value;
-                //console.log("cell.value= " + val);
                 for (var k=0; k<9; k++) {
-                    //console.log(k);
                     if (k != j) {
                         if (!this.rowSet[i].cells[k].isConstant) {
-                            //console.log("r eliminated: " + i + ", " + k);
                             this.rowSet[i].cells[k].eliminateNumber(val);
                         }
                     }
                     
                     if (k != i) {
                         if (!this.colSet[j].cells[k].isConstant) {
-                            //console.log("c eliminated: " + i + ", " + k);
                             this.colSet[j].cells[k].eliminateNumber(val);
                         }
                     }
                     
                     if (k != (3*(i%3) + (j%3))) {
                         if (!this.boxSet[this.getBoxNumber(i, j)].cells[k].isConstant) {
-                            //console.log("b eliminated: " + i + ", " + k);
                             this.boxSet[this.getBoxNumber(i, j)].cells[k].eliminateNumber(val);
                         }
                     }
@@ -94,23 +83,10 @@ SudokuTable.prototype.setupEliminations = function () {
 SudokuTable.prototype.next = function () {
     var i = this.currentCoordinates[0];
     var j = this.currentCoordinates[1] + 1;
-    
-    /*if (i == 0 && j == 1 && !this.table[0][0].isConstant) {
-        return this.table[0][0];
-    }*/
-    
-    /*    console.log(i);
-    console.log(j);
-    console.log("VAL " + this.getCell(i, j).value);
-    console.log("CNS " + this.getCell(i, j).isConstant);*/
     for (; i<9; i++){
         for (; j<9; j++) {
             var cell = this.table[i][j];
             if (!cell.isConstant) {
-    /*                console.log(i);
-                console.log(j);
-                console.log("val " + this.getCell(i, j).value);
-                console.log("cns " + this.getCell(i, j).isConstant);*/
                 this.currentCoordinates[0] = i;
                 this.currentCoordinates[1] = j;
                 return cell;
@@ -158,16 +134,11 @@ SudokuTable.prototype.pickLastCell = function () {
 SudokuTable.prototype.solve = function () {
     var c = this.table[0][0].isConstant ? this.next() : this.table[0][0];
     
-    while (true/*!(this.checkContradictions(c) && this.currentCoordinates[0] == 8 && this.currentCoordinates[1] == 8)*/) {
-        //console.log("NOW ON: (" + this.currentCoordinates[0] + ", " + this.currentCoordinates[1] + "), value: " + c.value);
-        //this.printBoard();
-        
+    while (true) {
         if (c.hasNextValue()) {
             c.setNextValue();
             
-            var contr = this.checkContradictions(c);
-            //console.log("contr: " + contr);
-            if (contr) {
+            if (this.checkContradictions(c)) {
                 if (this.currentCoordinates[0] == this.lastCoordinates[0] && this.currentCoordinates[1] == this.lastCoordinates[1]) {
                     break;
                 }
@@ -181,9 +152,6 @@ SudokuTable.prototype.solve = function () {
             c = this.prev();
         }
     }
-    
-    //console.log("FINISH!");
-    //this.printBoard();
 }
 
 SudokuTable.prototype.checkContradictions = function (cell) {
@@ -196,26 +164,7 @@ SudokuTable.prototype.getBoxNumber = function (row, col) {
     return (3 * Math.floor(row/3) + Math.floor(col/3));
 }
 
-SudokuTable.prototype.printEXPERIMENTAL = function () {
-    /*    console.log("rowSet");
-    for (var i=0; i<9; i++) {
-        this.rowSet[i].EXP_print();
-    }
-    console.log("");
-    
-    console.log("colSet");
-    for (var i=0; i<9; i++) {
-        this.colSet[i].EXP_print();
-    }
-    console.log("");
-    
-    console.log("boxSet");
-    for (var i=0; i<9; i++) {
-        this.boxSet[i].EXP_print();
-    }*/
-}
-
-SudokuTable.prototype.printSolution = function () {
+SudokuTable.prototype.printLinearSolution = function () {
     var sol = "";
     for (var i=0; i<9; i++) {
         for (var j = 0; j < 9; j++) {
@@ -267,7 +216,7 @@ SudokuTable.prototype.analyzeCellsWithTable = function () {
     console.log("X-Y    CONST   VAL     ISFINISHED");
     for (var i=0; i<9; i++) {
         for (var j = 0; j < 9; j++) {
-            console.log(i + "-" + j + "   " + this.table[i][j].isConstant + "   " + this.table[i][j].value + "   " + this.table[i][j].isFinished + "    " + typeof this.table[i][j].possibilityTable);
+            console.log(i + "-" + j + "   " + this.table[i][j].isConstant + "   " + this.table[i][j].value + "   " + this.table[i][j].isFinished);
         }
     }
 }

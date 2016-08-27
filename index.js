@@ -9,22 +9,17 @@
     090800070
     700060028
 */
-//var t1 = time.time();
+
 var input = "410070005080006090000500000007401300530000012004308700000004000090800070700060028";
 var SudokuTable = require("./SudokuTable.js");
 
 
 var start = new Date().getTime();
 
-var s = new SudokuTable(input);
+var table = new SudokuTable(input);
 
 var end = new Date().getTime();
 var time = end - start;
 
-s.printBoard();
+table.printBoard();
 console.log('Execution time: ' + time + " ms");
-//var sol = s.printEXPERIMENTAL();
-
-//console.log("INP = " + input);
-//console.log("SOL = " + sol);
-//console.log("SAME= " + (input == sol));

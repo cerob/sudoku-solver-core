@@ -13,11 +13,9 @@ Region.prototype.checkContradiction = function (cell) {
     
     for (var i=0; i<9; i++) {
         if (this.cells[i].value == val && foundOriginal){
-            //console.log("1 foundOrig: " + foundOriginal + ", i: " + i);
             return false;
         }
         if (this.cells[i].value == val && !foundOriginal){
-            //console.log("2 foundOrig: " + foundOriginal + ", i: " + i);
             foundOriginal = true;
         }
     }
@@ -28,7 +26,6 @@ Region.prototype.EXP_print = function () {
     var sol = "";
     for (var i=0; i<this.cells.length; i++) {
         var val = this.cells[i].value;
-        //console.log("typeof: " + typeof val);
         if (val == null) {
             sol += 0;
         } else {
