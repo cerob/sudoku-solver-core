@@ -21,5 +21,5 @@ var table = new SudokuTable(input);
 var end = new Date().getTime();
 var time = end - start;
 
-table.printBoard();
+table.printLinearSolution();
 console.log('Execution time: ' + time + " ms");

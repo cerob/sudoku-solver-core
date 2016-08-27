@@ -164,11 +164,11 @@ SudokuTable.prototype.getBoxNumber = function (row, col) {
     return (3 * Math.floor(row/3) + Math.floor(col/3));
 }
 
-SudokuTable.prototype.printLinearSolution = function () {
+SudokuTable.prototype.getLinearSolution = function () {
     var sol = "";
     for (var i=0; i<9; i++) {
         for (var j = 0; j < 9; j++) {
-            var val = this.table[i][j].getValue();
+            var val = this.table[i][j].value;
 
             if (val == null) {
                 sol += 0;
